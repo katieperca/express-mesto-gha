@@ -14,10 +14,15 @@ module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND_CODE).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(200).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(NOT_FOUND_CODE).send({ message: 'Пользователь по указанному _id не найден' });
+        return res.status(BAD_REQUEST_CODE).send({ message: 'Передан некорректный _id пользователя' });
       }
       return res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: err.message });
     });

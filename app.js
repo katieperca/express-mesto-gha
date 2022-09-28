@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
+const NOT_FOUND_CODE = 404;
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -23,6 +25,9 @@ app.use((req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
+app.use('*', (req, res) => {
+  res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая страница не найдена' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

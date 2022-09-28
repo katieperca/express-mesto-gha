@@ -34,7 +34,12 @@ module.exports.deleteCardById = (req, res) => {
       }
       return res.status(200).send({ data: card });
     })
-    .catch((err) => res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST_CODE).send({ message: 'Передан некорректный _id карточки' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: err.message });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -65,7 +70,7 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_CODE).send('Передан несуществующий _id карточки');
+        return res.status(NOT_FOUND_CODE).send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.status(200).send({ data: card });
     })
