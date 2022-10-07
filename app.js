@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const { createUser, login } = require('./controllers/users');
 
 const NOT_FOUND_CODE = 404;
 
@@ -28,6 +29,8 @@ app.use('/', cardsRouter);
 app.use('*', (req, res) => {
   res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая страница не найдена' });
 });
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

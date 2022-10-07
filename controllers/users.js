@@ -1,8 +1,30 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const BAD_REQUEST_CODE = 400;
+const UNAUTHORIZED_CODE = 401;
 const NOT_FOUND_CODE = 404;
 const INTERNAL_SERVER_ERROR_CODE = 500;
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.finfindUserByCredentialsdOne(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      // if(!user) {
+      //   return Promise.reject(new Error('Неправильные почта или пароль'));
+      // }
+      res.status(200).send(token);
+    })
+    .catch((err) => res.status(UNAUTHORIZED_CODE).send({ message: err.message }));
+};
+
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -29,9 +51,12 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create(
+      { name, about, avatar, email, password: hash },
+    ))
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
