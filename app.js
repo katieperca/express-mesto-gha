@@ -1,9 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const { createUser, login } = require('./controllers/users');
+const { login, createUser } = require('./controllers/users');
+// const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 const NOT_FOUND_CODE = 404;
 
@@ -16,22 +19,33 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6331d563b8b8c32b9aacded0',
-  };
-
-  next();
-});
-
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), createUser);
+// app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
+app.use((err, req, res, next) => {
+  res.status(err.statusCode).send({ message: err.message });
+  next();
+});
 app.use('*', (req, res) => {
   res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая страница не найдена' });
 });
-app.post('/signin', login);
-app.post('/signup', createUser);
-
+app.use(errors());
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
