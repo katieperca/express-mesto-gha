@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
@@ -29,7 +29,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -37,10 +37,6 @@ app.post('/signup', celebrate({
 // app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({ message: err.message });
-  next();
-});
 app.use('*', (req, res) => {
   res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая страница не найдена' });
 });

@@ -6,7 +6,6 @@ const {
   getUsers,
   getUserById,
   getCurrentUser,
-  // createUser,
   updateProfile,
   updateAvatar,
 } = require('../controllers/users');
@@ -18,7 +17,6 @@ router.get('/users/:userId', celebrate({
     userId: Joi.string().required(),
   }),
 }), auth, getUserById);
-// router.post('/users', createUser);
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -27,7 +25,7 @@ router.patch('/users/me', celebrate({
 }), auth, updateProfile);
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/),
   }),
 }), auth, updateAvatar);
 
