@@ -3,19 +3,18 @@ const mongoose = require('mongoose');
 const { default: isEmail } = require('validator/lib/isEmail');
 const bcrypt = require('bcryptjs');
 const UnauthorizedError = require('../errors/unauthorized-err');
+const urlRegexp = require('../utils/urlValidation');
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     default: 'Жак-Ив Кусто',
-    required: false,
     minlength: 2,
     maxlength: 30,
   },
   about: {
     type: String,
     default: 'Исследователь',
-    required: false,
     minlength: 2,
     maxlength: 30,
   },
@@ -23,8 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(v) {
-        const regexp = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-        return regexp.test(v);
+        return urlRegexp.test(v);
       },
     },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',

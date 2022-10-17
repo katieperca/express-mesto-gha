@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const urlRegexp = require('../utils/urlValidation');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,8 +13,7 @@ const cardSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        const regexp = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-        return regexp.test(v);
+        return urlRegexp.test(v);
       },
     },
   },

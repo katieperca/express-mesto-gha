@@ -5,7 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.status(200).send(cards))
+    .then((cards) => res.send(cards))
     .catch(next);
 };
 
@@ -34,7 +34,8 @@ module.exports.deleteCardById = (req, res, next) => {
       if (card) {
         if (card.owner.toString() === ownerId) {
           card.delete()
-            .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }));
+            .then(() => res.send({ message: 'Карточка успешно удалена' }))
+            .catch(next);
         } else {
           throw new ForbiddenError('Вы не можете удалять чужие карточки');
         }
@@ -57,7 +58,7 @@ module.exports.likeCard = (req, res, next) => {
   )
     .orFail(new NotFoundError('Передан несуществующий _id карточки'))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -76,7 +77,7 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .orFail(new NotFoundError('Передан несуществующий _id карточки'))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
